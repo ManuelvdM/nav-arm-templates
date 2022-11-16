@@ -427,6 +427,12 @@ if ($auth -eq "AAD") {
         else {
             Download-File -sourceUrl "https://businesscentralapps.blob.core.windows.net/azureadappsetup/Microsoft_AzureAdAppSetup_13.0.0.0.app" -destinationFile $appfile
         }
+        
+        Invoke-ScriptInBcContainer -containerName $containerName -scriptblock {
+            while (Get-NavTenant $serverInstance | Where-Object { $_.State -eq "Mounting" }) {
+                Start-Sleep -Seconds 1
+            }
+        }
 
         Publish-NavContainerApp -containerName $containerName -appFile $appFile -skipVerification -install -sync
 
